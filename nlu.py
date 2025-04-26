@@ -1,39 +1,45 @@
-import json
 from gemini_client import call_gemini
+import json
 
-# System prompt to guide the assistant’s persona & behavior
-SYSTEM_PROMPT = """
-You are AcmeCorp’s AI support assistant. 
-Be friendly, polite, and helpful. Use full sentences.
-If you need more info (like an order ID), ask politely.
-"""
+# System-level instructions (persona and behavior)
+SYSTEM_PROMPT = (
+    "You are AcmeCorp's AI Customer Support Assistant. "
+    "Be polite, clear, and helpful. "
+    "If you need more information, ask for it politely."
+)
+
 
 def get_intent_and_entities(user_msg: str) -> dict:
+    """
+    Uses Gemini to classify intent and extract entities from the user's message.
+    Expects a JSON response from the model.
+    """
     prompt = (
-        f"{SYSTEM_PROMPT}\n"
+        f"System: {SYSTEM_PROMPT}\n"
         f"User: {user_msg}\n"
-        "Assistant: Determine intent and extract entities (JSON only)."
+        "Assistant: Determine intent and extract relevant entities as JSON. "
+        "Possible intents: FAQ, OrderStatus, ProductInfo, Escalation, Other."
     )
-    out = call_gemini(prompt, max_tokens=100, temperature=0.2)
+    out = call_gemini(prompt, max_tokens=150, temperature=0.2)
     try:
         return json.loads(out)
     except json.JSONDecodeError:
-        # Fallback if JSON parsing fails
-        return {"intent": "Other", "order_id": None, "product_name": None}
+        return {"intent": "Other", "order_id": None, "product_id": None}
 
-def generate_reply(conversation: list, user_msg: str, knowledge: str = "") -> str:
+
+def generate_reply(history: list, user_msg: str, knowledge: str = "") -> str:
     """
-    conversation: list of dicts [{"role":"user"/"assistant","msg":...}, ...]
-    knowledge: factual info string (FAQ answer, order data, etc.)
+    Generates a reply via Gemini, given conversation history, user input, and optional factual knowledge.
     """
-    # Build prompt
-    prompt_lines = [f"System: {SYSTEM_PROMPT}"]
-    for turn in conversation[-6:]:  # keep last 6 turns
+    # Build prompt with system + history + user
+    system = f"System: {SYSTEM_PROMPT}"
+    lines = [system]
+    for turn in history[-6:]:
         role = "User" if turn["role"] == "user" else "Assistant"
-        prompt_lines.append(f"{role}: {turn['msg']}")
-    prompt_lines.append(f"User: {user_msg}")
+        lines.append(f"{role}: {turn['msg']}")
+    lines.append(f"User: {user_msg}")
     if knowledge:
-        prompt_lines.append(f"Assistant: (Info: {knowledge})")
-    prompt_lines.append("Assistant:")
-    prompt = "\n".join(prompt_lines)
-    return call_gemini(prompt, max_tokens=200, temperature=0.6)
+        lines.append(f"Assistant: (Info: {knowledge})")
+    lines.append("Assistant:")
+    full_prompt = "\n".join(lines)
+    return call_gemini(full_prompt, max_tokens=200, temperature=0.6)
