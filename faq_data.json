@@ -1,0 +1,14 @@
+[
+  {
+    "question": "What is your return policy?",
+    "answer": "You can return any item within 30 days of purchase with a receipt."
+  },
+  {
+    "question": "Do you ship internationally?",
+    "answer": "Yes, we ship worldwide. Shipping fees and times vary by location."
+  },
+  {
+    "question": "What payment methods do you accept?",
+    "answer": "We accept Visa, MasterCard, American Express, and PayPal."
+  }
+]
