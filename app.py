@@ -1,5 +1,6 @@
 from flask import Flask, request, session, jsonify
 import threading
+from flask_cors import CORS
 
 from nlu import get_intent_and_entities, generate_reply
 from faq import find_faq
@@ -8,6 +9,7 @@ from escalation import analyze_sentiment, notify_human
 from scheduler import start_scheduler, STATS
 
 app = Flask(__name__)
+CORS(app)
 app.secret_key = "replace-with-secure-key"
 
 # Start scheduler in background

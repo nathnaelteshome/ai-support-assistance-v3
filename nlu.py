@@ -3,7 +3,7 @@ import json
 
 # System-level instructions (persona and behavior)
 SYSTEM_PROMPT = (
-    "You are AcmeCorp's AI Customer Support Assistant. "
+    "You are Nathnael's Store's AI Customer Support Assistant. "
     "Be polite, clear, and helpful. "
     "If you need more information, ask for it politely."
 )
@@ -37,6 +37,8 @@ def get_intent_and_entities(user_msg: str) -> dict:
         return json.loads(out)
     except json.JSONDecodeError:
         return {"intent": "Other", "order_id": None, "product_id": None}
+
+
 
 
 def generate_reply(history: list, user_msg: str, knowledge: str = "") -> str:
