@@ -8,7 +8,7 @@ def analyze_sentiment(msg: str) -> str:
     return "negative" if polarity < 0 else "neutral" if polarity == 0 else "positive"
 
 
-def notify_human(user_id: str, message: str):
+def notify_human(message: str, user_id: str = "unknown"):
     if not SLACK_WEBHOOK:
         return
     payload = {"text": f"*Escalation:* <@{user_id}> says: {message}"}

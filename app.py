@@ -37,7 +37,9 @@ def chat():
             reply = generate_reply(history, user_msg)
 
     elif intent == "OrderStatus":
-        oid = intel.get("order_id")
+        entities = intel.get("entities")
+        oid = entities.get("order_id")
+
         if oid:
             order = get_order(int(oid))
             if order:
@@ -62,7 +64,7 @@ def chat():
 
     elif intent == "Escalation":
         reply = "I’m connecting you to a human agent now. Please hold."
-        notify_human(session.sid, user_msg)
+        notify_human(user_msg)
         STATS['escalations'] += 1
 
     else:
@@ -72,7 +74,7 @@ def chat():
     # Sentiment-based escalation
     if analyze_sentiment(user_msg) == "negative" and intent != "Escalation":
         reply = "I'm sorry you're upset—I'll get a human to help you right away."
-        notify_human(session.sid, user_msg)
+        notify_human(user_msg)
         STATS['escalations'] += 1
 
     # Update session history (keep last 10 turns)

@@ -21,6 +21,18 @@ def get_intent_and_entities(user_msg: str) -> dict:
         "Possible intents: FAQ, OrderStatus, ProductInfo, Escalation, Other."
     )
     out = call_gemini(prompt, max_tokens=150, temperature=0.2)
+    # --- Fix: Strip code fences if present ---
+    if out.strip().startswith("```"):
+        out = out.strip().strip("`")
+        # Remove the first line (e.g., 'json') and the last line if it's a code fence
+        lines = out.splitlines()
+        # Remove the first line if it starts with 'json'
+        if lines and lines[0].strip().lower().startswith("json"):
+            lines = lines[1:]
+        # Remove the last line if it's a code fence
+        if lines and lines[-1].strip() == "":
+            lines = lines[:-1]
+        out = "\n".join(lines)
     try:
         return json.loads(out)
     except json.JSONDecodeError:
